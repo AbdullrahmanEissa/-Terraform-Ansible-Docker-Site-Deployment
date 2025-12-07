@@ -1,0 +1,42 @@
+---
+
+- hosts: all
+  name: Bio Site With Docker
+  become: true
+  tasks:
+
+  - name: Update Repos
+    apt:
+      update_cache: yes
+
+  - name: Install Docker
+    apt:
+      name: docker.io
+      state: latest
+ 
+  - name: Service Docker
+    service:
+      name: docker
+      state: started
+      enabled: yes
+
+  - name: install Git
+    apt:
+      name: git
+      state: latest
+
+  - name: Repo
+    git: 
+      repo: https://github.com/AbdullrahmanEissa/My-Bio-Website.git
+      dest: /opt/My-Bio-Website
+      version: main
+      force: yes
+  
+  - name: Remove Old Container if exists
+    shell: docker rm -f site || true
+   
+  - name: Docker build 
+    shell: docker build -t site /opt/My-Bio-Website
+
+  - name: Docker run
+    shell: docker run -d -p 80:80 site
